@@ -1,32 +1,30 @@
 "use client";
 
 import React, { useContext, useState } from "react";
-import { AgentContext, StateType } from "@/lib/context";
+import { AgentContext } from "@/lib/context";
 import Button from "./ui/button";
 import Input from "./ui/input";
+import Loading from "./ui/loading";
+import { saveState } from "@/app/api/agent";
 
 export default function Footer() {
-    const { states, setStates } = useContext(AgentContext);
+    const { states, agent, setStates } = useContext(AgentContext);
     const [newStatePrompt, setNewStatePrompt] = useState('');
     const [newStateId, setNewStateId] = useState('');
+    const [loading, setLoading] = useState(false);
 
     const addState = () => {
-        if (!newStatePrompt.trim()) return;
-        if (states.length >= 2) {
-            const lastState = states[states.length - 1];
-            lastState.type = StateType.default;
-        }
-        const newState = {
-            id: Date.now().toString(),
-            prompt: newStatePrompt.trim(),
-            name: newStateId,
-            position: { x: 100, y: 100 + states.length * 100 },
-            type: !states.length ? StateType.initial : StateType.default,
-        };
-        setStates([...states, newState]);
-        setNewStatePrompt('');
-        setNewStateId('');
-
+        setLoading(true)
+        const position = { x: 100, y: 100 + states.length * 100 };
+        saveState(agent.id, newStatePrompt.trim(), newStateId, position)
+            .then((resp) => {
+                const newState = resp.data.state;
+                setStates(states.concat(newState));
+                setNewStatePrompt('');
+                setNewStateId('');
+            })
+            .catch()
+            .finally(() => setLoading(false))
     };
 
     return (
@@ -43,7 +41,9 @@ export default function Footer() {
                 placeholder="State-Specific Prompt"
                 className="flex-2"
             />
-            <Button onClick={addState}>Create State</Button>
+            <Button onClick={addState} disabled={loading}>
+                {loading ? <div className="flex gap-2"> Saving... <Loading /> </div> : "Create State"}
+            </Button>
         </footer>
     );
 }

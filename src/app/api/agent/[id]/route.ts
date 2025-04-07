@@ -36,7 +36,6 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
         await db.delete(states).where(eq(states.agentId, agentId));
         await db.insert(states).values(
             updatedStates.map((state: any) => ({
-                stateId: state.id,
                 prompt: state.prompt,
                 name: state.name,
                 position: state.position,
@@ -50,10 +49,10 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
         await db.insert(edges).values(
             updatedEdges.map((edge) => ({
                 agentId,
-                edgeId: edge.id,
                 source: edge.source,
                 target: edge.target,
                 label: edge.label,
+                keywords: edge.keywords
             }))
         );
     }

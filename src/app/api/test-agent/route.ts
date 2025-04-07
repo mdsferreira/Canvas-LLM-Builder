@@ -4,16 +4,18 @@ import OpenAI from 'openai';
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 export async function POST(req: NextRequest) {
-    const { globalPrompt, currentStatePrompt, message } = await req.json();
+    const { globalPrompt, currentStatePrompt, message, chatHistory } = await req.json();
 
-    const systemPrompt = `${globalPrompt}\n\nCurrent State Prompt:\n${currentStatePrompt}`;
+    const messages = [
+        { role: 'system', content: globalPrompt },
+        ...(currentStatePrompt ? [{ role: 'system', content: currentStatePrompt }] : []),
+        ...chatHistory,
+        { role: 'user', content: message },
+    ];
 
     const response = await openai.chat.completions.create({
         model: 'gpt-4o-mini',
-        messages: [
-            { role: 'system', content: systemPrompt },
-            { role: 'user', content: message },
-        ],
+        messages,
     });
 
     const reply = response.choices[0].message.content;
