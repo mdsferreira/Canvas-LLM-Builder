@@ -8,21 +8,22 @@ export enum StateType {
   final = "final"
 }
 
+export interface Position { x: number; y: number }
+
 export interface State {
   id: string;
-  stateId: string;
   prompt: string;
   name: string;
-  position?: { x: number; y: number };
+  position?: Position;
   type: StateType
 }
 
 export type Edge = {
   id: string;
-  edgeId: string;
   source: string;
   target: string;
   label?: string;
+  keywords?: string[];
 };
 
 export type Agent = {

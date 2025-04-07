@@ -11,7 +11,7 @@ export default function Header({ setEditingGlobalPrompt }) {
     return (
         <header className="bg-white shadow p-4 flex items-center justify-between">
             <div className="flex items-center gap-2 w-full">
-                <div className="flex-1 text-gray-700 font-medium">
+                <div className="flex-1 text-gray-700 text-[12px] border border-gray-200 p-2 border-solid rounded-sm">
                     {agent.globalPrompt}
                 </div>
                 <Button onClick={() => setEditingGlobalPrompt(true)}>

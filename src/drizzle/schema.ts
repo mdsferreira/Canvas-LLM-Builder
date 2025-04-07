@@ -1,5 +1,5 @@
 import { relations } from 'drizzle-orm';
-import { pgTable, text, uuid, json } from 'drizzle-orm/pg-core';
+import { pgTable, text, uuid, json, jsonb } from 'drizzle-orm/pg-core';
 
 export const agents = pgTable('agents', {
     id: uuid('id').primaryKey().defaultRandom(),
@@ -8,7 +8,6 @@ export const agents = pgTable('agents', {
 
 export const states = pgTable('states', {
     id: uuid('id').primaryKey().defaultRandom(),
-    stateId: text('stateId').notNull(), //FE id
     agentId: uuid('agent_id').notNull().references(() => agents.id),
     prompt: text('prompt').notNull(),
     name: text('name').notNull(),
@@ -17,17 +16,16 @@ export const states = pgTable('states', {
 
 export const edges = pgTable('edges', {
     id: uuid('id').primaryKey().defaultRandom(),
-    edgeId: text('statesId').notNull(), //FE id
     agentId: uuid('agent_id').notNull().references(() => agents.id, { onDelete: 'cascade' }),
     source: text('source').notNull(), // ID of the source state
     target: text('target').notNull(), // ID of the target state
     label: text('label'),             // optional transition label
+    keywords: jsonb('keywords').$type<string[]>(),
 });
 
 export const agentRelations = relations(agents, ({ many }) => ({
     states: many(states),
     edges: many(edges),
-
 }));
 
 export const stateRelations = relations(states, ({ one }) => ({

@@ -2,7 +2,7 @@
 import { useState } from "react";
 import LLMBuilder from "@/components/LLMBuilder";
 import TestModeSidebar from "@/components/TestModeSidebar";
-import { AgentContext, AgentProvider } from "@/lib/context";
+import { AgentProvider } from "@/lib/context";
 
 export default function App() {
     const [editingGlobalPrompt, setEditingGlobalPrompt] = useState(true);
