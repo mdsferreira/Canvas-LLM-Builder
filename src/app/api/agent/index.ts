@@ -19,3 +19,13 @@ export const saveAgent = (agent: Agent) => {
 export const saveStates = (agentId: string, states?: State[], edges?: Edge[], globalPrompt?: string) => {
     return axios.put<{ id: string }>(`/api/agent/${agentId}`, { states, edges, globalPrompt });
 };
+
+
+export const testAgent = (globalPrompt: string, currentStatePrompt: string, message: string) => {
+    return axios.post('/api/test-agent', {
+        globalPrompt,
+        currentStatePrompt,
+        message,
+    });
+};
+

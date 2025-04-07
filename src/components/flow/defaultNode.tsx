@@ -10,14 +10,14 @@ const DefaultNode: React.ComponentType<NodeProps> = (props) => {
         type="target"
         position={Position.Top}
         isConnectable
-        id="top"
+        id={`top-${props.id}`}
       />
       <label htmlFor="text">{data.label}</label>
       <Handle
         type="source"
         position={Position.Bottom}
         isConnectable
-        id="bot"
+        id={`bot-${props.id}`}
       />
     </div>
   )
