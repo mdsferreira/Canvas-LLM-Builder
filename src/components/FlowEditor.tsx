@@ -14,9 +14,9 @@ const createNewNode = (state, index) => ({
 })
 const createNewEdge = (edge) => ({
     ...edge,
-    id: edge.edgeId || edge.id,
+    id: edge.edgeId || edge.id || Date.now().toString(),
     animated: true,
-    sourceHandle: 'bot'
+    sourceHandle: `top-${edge.source}`
 })
 
 export default function FlowEditor() {
@@ -39,6 +39,7 @@ export default function FlowEditor() {
         }
     }, [states])
 
+    //load the saved edges
     useEffect(() => {
         if (nodes.length && !edgesLocal.length && edges && edges.length) {
             setLocalEdges(edges.map(createNewEdge))
@@ -51,7 +52,7 @@ export default function FlowEditor() {
         if (changes && changes.length && changes[0].dragging) {
             const posChange: NodePositionChange = changes[0];
             if (posChange.position) {
-                const updated = states.find((s) => s.stateId === posChange.id);
+                const updated = states.find((s) => s.id === posChange.id || s.stateId === posChange.id);
                 updated.position = posChange.position;
                 setStates(states);
             }
@@ -59,11 +60,11 @@ export default function FlowEditor() {
     };
 
     const onConnect = useCallback(
-        (params) =>
-            setEdges((eds: Edge[]) =>
-                addEdge({ ...params, animated: true }, eds),
-            ),
-        [edges],
+        (params) => {
+            setLocalEdges(edgesLocal.concat(createNewEdge(params)))
+            setEdges(edgesLocal.concat(createNewEdge(params)));
+        },
+        [edgesLocal],
     );
 
     const nodeTypes = useMemo(() => ({ [StateType.initial]: InitialNode, [StateType.default]: DefaultNode, [StateType.final]: FinalNode }), []);

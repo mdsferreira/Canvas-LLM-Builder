@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import { Dispatch, SetStateAction, useContext, useEffect, useState } from 'react';
 import Button from '@/components/ui/button';
 import Textarea from '@/components/ui/textarea';
 import FlowEditor from '@/components/FlowEditor';
@@ -7,9 +7,13 @@ import { getAgent, getAllAgent, saveAgent } from '@/app/api/agent';
 import Header from './Header';
 import Footer from './Footer';
 
-export default function LLMBuilder() {
+interface LLMBuilderProps {
+    editingGlobalPrompt: boolean;
+    setEditingGlobalPrompt: Dispatch<SetStateAction<boolean>>;
+}
+
+const LLMBuilder: React.FC<LLMBuilderProps> = ({ editingGlobalPrompt, setEditingGlobalPrompt }) => {
     const { agent, setAgent, setStates, setEdges } = useContext(AgentContext);
-    const [editingGlobalPrompt, setEditingGlobalPrompt] = useState(true);
     const [agents, setAgents] = useState<Agent[]>([]);
 
     const fetchAgent = () => {
@@ -45,7 +49,7 @@ export default function LLMBuilder() {
 
     if (editingGlobalPrompt) {
         return (
-            <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-4">
+            <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-4 w-full">
                 <div className="w-full max-w-xl">
                     <h1 className="text-2xl font-bold mb-4 text-center">Create a new Global Prompt</h1>
                     <Textarea
@@ -87,7 +91,7 @@ export default function LLMBuilder() {
     }
 
     return (
-        <div className="flex flex-col min-h-screen">
+        <div className="flex flex-col w-2/3 min-h-screen">
             <Header setEditingGlobalPrompt={setEditingGlobalPrompt} />
             <main className="flex-1 bg-gray-100 p-4">
                 <FlowEditor />
@@ -96,3 +100,6 @@ export default function LLMBuilder() {
         </div>
     );
 }
+
+
+export default LLMBuilder
