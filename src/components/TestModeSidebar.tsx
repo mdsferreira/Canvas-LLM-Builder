@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from 'react';
-import { TestTubeDiagonal } from 'lucide-react';
+import { TestTubeDiagonal, Trash2 } from 'lucide-react';
 import { AgentContext, Edge, State } from '@/lib/context';
-import { testAgent } from '@/app/api/agent';
+import { testAgent } from '@/app/api';
 import Button from './ui/button';
 import Input from './ui/input';
 
@@ -61,6 +61,10 @@ export default function TestModeSidebar() {
             })
     };
 
+    const resetChat = () => {
+        setChat([])
+    }
+
     useEffect(() => {
         if (!currentState) setCurrentState(states[0])
     }, [states])
@@ -74,8 +78,12 @@ export default function TestModeSidebar() {
 
     return (
         <div className="w-1/3 h-full border-l border-gray-200 bg-white flex flex-col p-4">
-            <h2 className="text-lg font-semibold mb-4 flex gap-2 items-center"><TestTubeDiagonal size={16} /> Test Mode</h2>
-            <h5 className="text-md text-green-500 italic">Current State: {currentState?.name}</h5>
+            <div className='flex items-center justify-between w-full mb-2 '>
+                <h2 className="text-lg font-semibold flex gap-2 items-center"><TestTubeDiagonal size={16} /> Test Mode</h2>
+                <Button variant="ghost" className="flex gap-2 items-center" onClick={resetChat}><Trash2 size={15} /> Reset Test</Button>
+            </div>
+            <hr className='text-gray-200 mb-2' />
+            <div className="text-sm mb-2">Current State: <span className="text-green-500 ">[{currentState?.name}]</span></div>
             {/* Chat history */}
             <div className="flex-1 overflow-y-auto rounded bg-gray-50 p-2 text-sm space-y-2 overflow-y-auto">
                 {chat.map((msg, idx) => (

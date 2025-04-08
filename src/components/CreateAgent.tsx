@@ -2,7 +2,7 @@ import React, { Dispatch, SetStateAction, useContext, useEffect, useState } from
 import Textarea from './ui/textarea'
 import Button from './ui/button'
 import { Agent, AgentContext } from '@/lib/context'
-import { getAgent, getAllAgent, saveAgent } from '@/app/api/agent'
+import { editAgent, getAgent, getAllAgent, saveAgent } from '@/app/api'
 import Loading from './ui/loading'
 
 type CreateAgentProps = {
@@ -20,7 +20,7 @@ const CreateAgent: React.FC<CreateAgentProps> = ({ setEditingGlobalPrompt }) => 
             .then((resp) => {
                 setAgents(resp.data)
             })
-            .catch()
+            .catch((err) => console.error(err))
             .finally(() => setLoading(false))
     };
 
@@ -35,11 +35,18 @@ const CreateAgent: React.FC<CreateAgentProps> = ({ setEditingGlobalPrompt }) => 
             })
     }
 
-    const createNewAgent = () => {
-        saveAgent(agent)
-            .then((resp) => setAgent(resp.data.agent))
-            .catch()
-            .finally(() => setEditingGlobalPrompt(false))
+    const createEditAgent = () => {
+        if (agent?.id) {
+            editAgent(agent.id, agent.globalPrompt)
+                .catch((err) => console.error(err))
+                .finally(() => setEditingGlobalPrompt(false))
+        }
+        else {
+            saveAgent(agent)
+                .then((resp) => setAgent(resp.data.agent))
+                .catch((err) => console.error(err))
+                .finally(() => setEditingGlobalPrompt(false))
+        }
     }
 
     useEffect(() => {
@@ -52,14 +59,14 @@ const CreateAgent: React.FC<CreateAgentProps> = ({ setEditingGlobalPrompt }) => 
                 <h1 className="text-2xl font-bold mb-4 text-center">Create a new Global Prompt</h1>
                 <Textarea
                     value={agent?.globalPrompt}
-                    onChange={(e) => setAgent({ globalPrompt: e.target.value })}
+                    onChange={(e) => setAgent({ ...agent, globalPrompt: e.target.value })}
                     placeholder="Enter your global prompt here..."
                     className="mb-4"
                     rows={6}
                 />
                 <Button
                     className="w-full"
-                    onClick={createNewAgent}
+                    onClick={createEditAgent}
                     disabled={!agent?.globalPrompt?.trim()}
                 >
                     Save Global Prompt
