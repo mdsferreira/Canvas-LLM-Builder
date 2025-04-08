@@ -11,7 +11,7 @@ export default function CustomEdge({
     sourcePosition,
     targetPosition,
 }: EdgeProps) {
-    const { setEdges, getEdge } = useReactFlow();
+    const { getEdge } = useReactFlow();
     const [edgePath, labelX, labelY] = getBezierPath({
         sourceX,
         sourceY,
@@ -23,9 +23,6 @@ export default function CustomEdge({
 
     const edge = getEdge(id)
 
-    const onEdgeClick = () => {
-        // setEdges((edges) => edges.filter((edge) => edge.id !== id));
-    };
 
     return (
         <>

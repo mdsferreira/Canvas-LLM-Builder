@@ -40,6 +40,8 @@ interface AgentContextType {
   setStates: (states: State[]) => void;
   edges: Edge[];
   setEdges: (edges: Edge[]) => void;
+  selectedState: State | null;
+  setSelectedState: (state: State) => void
 }
 
 export const AgentContext = createContext<AgentContextType | undefined>(undefined);
@@ -48,9 +50,20 @@ export const AgentProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   const [agent, setAgent] = useState<Agent>(null);
   const [states, setStates] = useState<State[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
+  const [selectedState, setSelectedState] = useState<State | null>(null);
 
   return (
-    <AgentContext.Provider value={{ agent, setAgent, states, setStates, edges, setEdges }}>
+    <AgentContext.Provider
+      value={{
+        agent,
+        setAgent,
+        states,
+        setStates,
+        edges,
+        setEdges,
+        selectedState,
+        setSelectedState
+      }}>
       {children}
     </AgentContext.Provider>
   );

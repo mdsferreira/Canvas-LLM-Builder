@@ -1,5 +1,5 @@
 import { useContext, useState } from 'react';
-import { saveStates } from '@/app/api/agent';
+import { editAgent } from '@/app/api';
 import { AgentContext } from '@/lib/context';
 import Button from './button';
 import Loading from './loading';
@@ -10,8 +10,8 @@ const SaveButton = () => {
 
     const handleSave = () => {
         setLoading(true)
-        saveStates(agent.id, states, edges, agent.globalPrompt)
-            .catch()
+        editAgent(agent.id, agent.globalPrompt, states, edges)
+            .catch((err) => console.error(err))
             .finally(() => setLoading(false))
     };
 

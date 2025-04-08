@@ -1,25 +1,28 @@
 'use client';
 
-import { useContext, useState } from 'react';
+import { useState } from 'react';
 import { Dialog, DialogPanel, DialogTitle } from '@headlessui/react';
 import Button from './ui/button';
 import Input from './ui/input';
-import { saveEdgeKeys } from '@/app/api/agent';
-import { AgentContext } from '@/lib/context';
+import { deleteEdge, saveEdgeKeys } from '@/app/api';
+import { Edge } from '@/lib/context';
+import Loading from './ui/loading';
+import { Trash2 } from 'lucide-react';
 
 interface EdgeKeywordModalProps {
     edgeId: string;
     initialKeywords: string[];
     isOpen: boolean;
     onClose: () => void;
-    onSave?: (keywords: string[]) => void;
+    onSave?: (edge: Edge) => void;
+    onDelete?: () => void
 };
 
-const EdgeKeywordModal: React.FC<EdgeKeywordModalProps> = ({ edgeId, initialKeywords, isOpen, onClose, onSave }) => {
+const EdgeKeywordModal: React.FC<EdgeKeywordModalProps> = ({ edgeId, initialKeywords, isOpen, onClose, onSave, onDelete }) => {
     const [keywords, setKeywords] = useState(initialKeywords || []);
     const [newKeyword, setNewKeyword] = useState('');
-    const { setEdges, edges } = useContext(AgentContext);
     const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
 
     const addKeyword = () => {
         if (newKeyword.trim() && !keywords.includes(newKeyword.trim())) {
@@ -36,14 +39,17 @@ const EdgeKeywordModal: React.FC<EdgeKeywordModalProps> = ({ edgeId, initialKeyw
     const handleSave = () => {
         if (!keywords.length) setError("Add an keyword!")
         else {
+            setLoading(true)
             saveEdgeKeys(edgeId, keywords)
-                .then((() => {
-                    onSave?.(keywords);
+                .then(((resp) => {
+                    onSave?.(resp.data.edge);
                     setKeywords([]);
-                    setEdges(edges.map(e => ({ ...e, label: e.id === edgeId ? keywords.join(', ') : e.label })))
                 }))
-                .catch()
-                .finally(() => onClose())
+                .catch((err) => console.error(err))
+                .finally(() => {
+                    setLoading(false);
+                    onClose()
+                })
         }
     };
 
@@ -52,13 +58,30 @@ const EdgeKeywordModal: React.FC<EdgeKeywordModalProps> = ({ edgeId, initialKeyw
         else onClose()
     }
 
+    const handleDeleteEdge = () => {
+        deleteEdge(edgeId)
+            .then(((resp) => {
+                if (resp.data.success) {
+                    onDelete()
+                }
+            }))
+            .catch((err) => console.error(err))
+            .finally(() => {
+                onClose()
+            })
+    }
+
     return (
         <Dialog open={isOpen} onClose={onClose} className="relative z-50">
             <div className="fixed inset-0 bg-black/30" />
             <div className="fixed inset-0 flex items-center justify-center">
                 <DialogPanel className="bg-white p-6 rounded-xl w-[400px] shadow-lg">
-                    <DialogTitle className="text-lg font-semibold mb-4">
+                    <DialogTitle className="text-lg font-semibold flex items-center justify-between w-full mb-2 ">
                         Edit Edge Keywords
+                        <Button variant="ghost" className="flex gap-2 items-center" onClick={handleDeleteEdge}>
+                            <Trash2 color='red' size={15} /> Delete Edge
+                        </Button>
+
                     </DialogTitle>
 
                     <div className="space-y-2 mb-4">
@@ -91,7 +114,9 @@ const EdgeKeywordModal: React.FC<EdgeKeywordModalProps> = ({ edgeId, initialKeyw
                         <Button variant="ghost" onClick={handleClose}>
                             Cancel
                         </Button>
-                        <Button variant="success" onClick={handleSave}>Save</Button>
+                        <Button variant="success" onClick={handleSave}>
+                            {loading ? <div className='flex gap-2'>Saving...<Loading /></div> : "Save"}
+                        </Button>
                     </div>
                 </DialogPanel>
             </div>

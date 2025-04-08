@@ -14,11 +14,19 @@ export const saveAgent = (agent: Agent) => {
 };
 
 export const saveState = (agentId: string, prompt: string, name: string, position: Position) => {
-    return axios.post<{ state: State }>(`/api/state`, { agentId, prompt, name, position });
+    return axios.post<{ state: State }>(`/api/states`, { agentId, prompt, name, position });
 };
 
-export const saveStates = (agentId: string, states?: State[], edges?: Edge[], globalPrompt?: string) => {
+export const editState = (stateId: string, prompt: string, name: string) => {
+    return axios.put<{ state: State }>(`/api/states/${stateId}`, { prompt, name });
+};
+
+export const editAgent = (agentId: string, globalPrompt?: string, states?: State[], edges?: Edge[]) => {
     return axios.put<{ id: string }>(`/api/agent/${agentId}`, { states, edges, globalPrompt });
+};
+
+export const deleteState = (stateId: string) => {
+    return axios.delete<{ success: boolean }>(`/api/states/${stateId}`);
 };
 
 export const testAgent = (globalPrompt: string, currentStatePrompt: string, fullChat: any, message: string) => {
@@ -40,6 +48,10 @@ export const saveEdge = (agentId: string, source: string, target: string, label?
 };
 
 export const saveEdgeKeys = (edgeId: string, keywords: string[]) => {
-    return axios.put(`/api/edges/${edgeId}`, { keywords });
+    return axios.put<{ edge: Edge }>(`/api/edges/${edgeId}`, { keywords });
+};
+
+export const deleteEdge = (edgeId: string) => {
+    return axios.delete<{ success: boolean }>(`/api/edges/${edgeId}`);
 };
 
