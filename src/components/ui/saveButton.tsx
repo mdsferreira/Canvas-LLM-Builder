@@ -20,7 +20,7 @@ const SaveButton = () => {
             variant="success"
             onClick={handleSave}
         >
-            {loading ? <div className='flex gap-2'>Saving... <Loading /></div> : "Save States"}
+            {loading ? <div className='flex gap-2'>Saving... <Loading /></div> : "Save States Positions"}
         </Button>
     );
 };

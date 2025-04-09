@@ -1,8 +1,8 @@
 import ReactFlow, {
     Background, BackgroundVariant, Controls, EdgeChange, MiniMap, NodePositionChange, OnEdgesChange, OnNodesChange, useEdgesState, useNodesState
 } from 'reactflow';
-import { useCallback, useContext, useEffect, useState } from 'react';
-import { AgentContext, Edge, StateType } from '@/lib/context';
+import { useContext, useEffect, useState } from 'react';
+import { AgentContext, Edge, State, StateType } from '@/lib/context';
 import InitialNode from '@/components/flow/initialNode';
 import DefaultNode from '@/components/flow/defaultNode';
 import FinalNode from '@/components/flow/finalNode';
@@ -21,7 +21,7 @@ const edgeTypes = {
     buttonedge: CustomEdge,
 }
 
-const getStateType = (state, edges, numStates) => {
+const getStateType = (state: State, edges: Edge[], numStates: number) => {
     if (edges.length < numStates - 1) return StateType.default;
     const stateSources = edges?.filter((e) => e.source === state.id);
     const statetargets = edges?.filter((e) => e.target === state.id)
@@ -31,13 +31,13 @@ const getStateType = (state, edges, numStates) => {
     if (!stateSources.length && statetargets?.length) return StateType.final;
 }
 
-const createNewNode = (state, index, edges, numStates) => ({
+const createNewNode = (state: State, index: number, edges: Edge[], numStates: number) => ({
     id: state.id,
     data: { label: state.name },
     position: state.position || { x: 100, y: 100 + index * 100 },
     type: getStateType(state, edges, numStates),
 })
-const createNewEdge = (edge) => ({
+const createNewEdge = (edge: Edge) => ({
     ...edge,
     id: edge.id,
     data: { label: edge.label },
@@ -53,16 +53,11 @@ export default function FlowEditor() {
     const [openEdgeModal, setOpenEdgeModal] = useState(false);
     const [selectedEdge, setSelectedEdge] = useState<Edge | null>(null);
 
-    //load the saved sates
-    useEffect(() => {
-        setNodes(states.map((s, idx) => createNewNode(s, idx, edges, states.length)));
-    }, [states])
-
-    //load the saved edges
+    //load the saved sates and edges
     useEffect(() => {
         setNodes(states.map((s, idx) => createNewNode(s, idx, edges, states.length)));
         setLocalEdges(edges.map(createNewEdge))
-    }, [edges])
+    }, [states, edges, setNodes])
 
     useEffect(() => {
         if (selectedEdge) setOpenEdgeModal(true)
@@ -73,14 +68,10 @@ export default function FlowEditor() {
         // Update context with new positions
         if (changes && changes.length) {
             const posChange = changes[0];
-            if (posChange.position && posChange.dragging) {
-                const updated = states.find((s) => s.id === posChange.id);
-                updated.position = posChange.position;
-                setStates(states);
-            }
-            else {
-                if (posChange.dragging === false)
-                    setSelectedState(states.find(s => s.id === posChange.id))
+            if (posChange.dragging === false) {
+                const nodeMoving = nodes.find(n => n.id === posChange.id)
+                setStates(states.map(s => s.id === posChange.id ? { ...s, position: nodeMoving.position } : { ...s }));
+                setSelectedState(states.find(s => s.id === posChange.id))
             }
         }
     };
@@ -93,7 +84,7 @@ export default function FlowEditor() {
         }
     };
 
-    const saveNewEdge = (newEdge) => {
+    const saveNewEdge = (newEdge: Edge) => {
         saveEdge(agent.id, newEdge.source, newEdge.target)
             .then((resp) => {
                 const savedEdge = resp.data.edge
@@ -103,9 +94,7 @@ export default function FlowEditor() {
             .catch((err) => console.error(err))
     }
 
-    const onConnect = useCallback((params) => {
-        saveNewEdge(params)
-    }, [edgesLocal]);
+    const onConnect = (params) => saveNewEdge(params)
 
     return (
         <div className="w-full h-full rounded-xl overflow-hidden border border-gray-300 bg-white">

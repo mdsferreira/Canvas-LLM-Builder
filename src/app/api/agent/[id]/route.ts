@@ -3,7 +3,11 @@ import { agents, edges, states } from '@/drizzle/schema';
 import { eq, inArray, sql, SQL } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
 
-export async function GET(_: Request, { params }: { params: { id: string } }) {
+interface Params {
+    params: Promise<{ id: string }>
+}
+
+export async function GET(_: Request, { params }: Params) {
     const { id: agentId } = await params
     const agentData = await db.query.agents.findFirst({
         where: eq(agents.id, agentId),
@@ -24,7 +28,7 @@ export async function GET(_: Request, { params }: { params: { id: string } }) {
     });
 }
 
-export async function PUT(req: Request, { params }: { params: { id: string } }) {
+export async function PUT(req: Request, { params }: Params) {
     const { id: agentId } = await params
     const { globalPrompt, states: updatedStates, edges: updatedEdges } = await req.json();
 
@@ -38,8 +42,8 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
         const ids: string[] = [];
         sqlChunks.push(sql`(case `);
         for (const state of updatedStates) {
-            sqlChunks.push(sql`when ${states.id} = ${state.id} then`),
-                sqlChunks.push(sql`${state.position}::json`);
+            sqlChunks.push(sql`when ${states.id} = ${state.id} then`);
+            sqlChunks.push(sql`${state.position}::json`);
             ids.push(state.id);
         }
         sqlChunks.push(sql`end)`);
