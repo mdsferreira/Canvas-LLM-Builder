@@ -20,30 +20,31 @@ export default function Footer() {
         setNewStateId('');
     }
 
-    const addState = () => {
+    const createEditState = () => {
         setLoading(true)
         const position = { x: 100, y: 100 + states.length * 100 };
-        if (!selectedState) {
-            saveState(agent.id, newStatePrompt.trim(), newStateId, position)
+        if (selectedState && selectedState.id) {
+            editState(selectedState?.id, newStatePrompt.trim(), newStateId)
                 .then((resp) => {
                     const newState = resp.data.state;
-                    setStates(states.concat(newState));
-                    setNewStatePrompt('');
-                    setNewStateId('');
+                    setStates(states.filter(s => s.id !== selectedState?.id).concat(newState));
+                    reset()
                 })
                 .catch((err) => console.error(err))
                 .finally(() => setLoading(false))
         }
         else {
-            editState(selectedState.id, newStatePrompt.trim(), newStateId)
-                .then((resp) => {
-                    const newState = resp.data.state;
-                    console.log(newState)
-                    setStates(states.concat(newState));
-                    reset()
-                })
-                .catch((err) => console.error(err))
-                .finally(() => setLoading(false))
+            if (agent && agent.id) {
+                saveState(agent.id, newStatePrompt.trim(), newStateId, position)
+                    .then((resp) => {
+                        const newState = resp.data.state;
+                        setStates(states.concat(newState));
+                        setNewStatePrompt('');
+                        setNewStateId('');
+                    })
+                    .catch((err) => console.error(err))
+                    .finally(() => setLoading(false))
+            }
         }
     };
 
@@ -54,11 +55,12 @@ export default function Footer() {
     }
 
     const handleDeleteState = () => {
-        deleteState(selectedState.id)
-            .then(() => {
-                setStates(states.filter(s => s.id !== selectedState.id))
-                reset()
-            })
+        if (selectedState)
+            deleteState(selectedState?.id)
+                .then(() => {
+                    setStates(states.filter(s => s.id !== selectedState.id))
+                    reset()
+                })
     }
 
     useEffect(() => {
@@ -92,7 +94,7 @@ export default function Footer() {
                     </Button>
                 </>
             }
-            <Button onClick={addState} disabled={loading} variant={selectedState ? "default" : "success"}>
+            <Button onClick={createEditState} disabled={loading} variant={selectedState ? "default" : "success"}>
                 {renderBtnLabel()}
             </Button>
 

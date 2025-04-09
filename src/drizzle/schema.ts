@@ -17,10 +17,10 @@ export const states = pgTable('states', {
 export const edges = pgTable('edges', {
     id: uuid('id').primaryKey().defaultRandom(),
     agentId: uuid('agent_id').notNull().references(() => agents.id, { onDelete: 'cascade' }),
-    source: text('source').notNull(), // ID of the source state
-    target: text('target').notNull(), // ID of the target state
-    label: text('label'),             // optional transition label
-    keywords: jsonb('keywords').$type<string[]>(),
+    source: text('source').notNull(),
+    target: text('target').notNull(),
+    label: text('label').notNull(),
+    keywords: jsonb('keywords').$type<string[]>().notNull(),
 });
 
 export const agentRelations = relations(agents, ({ many }) => ({

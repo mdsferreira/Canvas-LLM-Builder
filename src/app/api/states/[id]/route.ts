@@ -3,7 +3,11 @@ import { edges, states } from '@/drizzle/schema';
 import { eq } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
 
-export async function PUT(req: Request, { params }: { params: { id: string } }) {
+interface Params {
+    params: Promise<{ id: string }>
+}
+
+export async function PUT(req: Request, { params }: Params) {
     const { id: stateId } = await params
     const { prompt, name } = await req.json();
     if (!prompt || !name) {
@@ -16,7 +20,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
     return NextResponse.json({ state });
 }
 
-export async function DELETE(req: Request, { params }: { params: { id: string } }) {
+export async function DELETE(req: Request, { params }: Params) {
     try {
         const { id: stateId } = await params
 

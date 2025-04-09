@@ -12,6 +12,7 @@ export async function POST(req: Request) {
             source,
             target,
             label,
+            keywords: []
         }
     ).returning();
 

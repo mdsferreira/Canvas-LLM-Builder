@@ -35,7 +35,7 @@ export default function CustomEdge({
                     }}
                     className="text-[10px]"
                 >
-                    [{edge.label}]
+                    [{edge?.label}]
                 </div>
             </EdgeLabelRenderer>
         </>

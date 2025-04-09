@@ -29,7 +29,7 @@ export const deleteState = (stateId: string) => {
     return axios.delete<{ success: boolean }>(`/api/states/${stateId}`);
 };
 
-export const testAgent = (globalPrompt: string, currentStatePrompt: string, fullChat: any, message: string) => {
+export const testAgent = (globalPrompt: string, currentStatePrompt: string, fullChat: { role: string; content: string }[], message: string) => {
     return axios.post('/api/test-agent', {
         globalPrompt,
         currentStatePrompt,

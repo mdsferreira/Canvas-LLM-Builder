@@ -3,7 +3,11 @@ import { edges } from '@/drizzle/schema';
 import { eq } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
 
-export async function PUT(req: Request, { params }: { params: { id: string } }) {
+interface Params {
+    params: Promise<{ id: string }>
+}
+
+export async function PUT(req: Request, { params }: Params) {
     const { id: edgeId } = await params
     const { keywords } = await req.json();
     if (!Array.isArray(keywords)) {
@@ -11,15 +15,16 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
     }
     const [edge] = await db
         .update(edges)
-        .set({ keywords, label: keywords.join(', ') })
+        .set({ label: keywords.join(', '), keywords })
         .where(eq(edges.id, edgeId)).returning();
     return NextResponse.json({ edge });
 }
 
 
-export async function DELETE(req: Request, { params }: { params: { id: string } }) {
+export async function DELETE(_: Request, { params }: Params) {
     try {
-        await db.delete(edges).where(eq(edges.id, params.id));
+        const { id: edgeId } = await params
+        await db.delete(edges).where(eq(edges.id, edgeId));
         return NextResponse.json({ success: true });
     } catch (error) {
         console.error('[DELETE EDGE]', error);

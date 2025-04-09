@@ -47,18 +47,19 @@ export default function TestModeSidebar() {
             content: msg.text,
         }));
         setInput('');
-        testAgent(agent.globalPrompt, currentState?.prompt, fullChat, userMsg)
-            .then((res) => {
-                const aiReply = res.data.reply;
-                setChat((prev) => [...prev, { role: 'assistant', text: aiReply }]);
-                updateCurrentState(aiReply, userMsg)
-            })
-            .catch(() => {
-                setChat((prev) => [
-                    ...prev,
-                    { role: 'assistant', text: '⚠️ Error contacting OpenAI.' },
-                ]);
-            })
+        if (agent && agent.globalPrompt)
+            testAgent(agent.globalPrompt, currentState?.prompt, fullChat, userMsg)
+                .then((res) => {
+                    const aiReply = res.data.reply;
+                    setChat((prev) => [...prev, { role: 'assistant', text: aiReply }]);
+                    updateCurrentState(aiReply, userMsg)
+                })
+                .catch(() => {
+                    setChat((prev) => [
+                        ...prev,
+                        { role: 'assistant', text: '⚠️ Error contacting OpenAI.' },
+                    ]);
+                })
     };
 
     const resetChat = () => {
@@ -67,7 +68,7 @@ export default function TestModeSidebar() {
 
     useEffect(() => {
         if (!currentState) setCurrentState(states[0])
-    }, [states])
+    }, [states, currentState])
 
     if (!states || !states.length) return (
         <div className="w-1/3 h-full border-l border-gray-200 bg-white flex flex-col p-4">

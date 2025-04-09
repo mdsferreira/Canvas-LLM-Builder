@@ -1,5 +1,6 @@
 import { db } from '@/drizzle/db';
 import { agents, states, edges } from '@/drizzle/schema';
+import { Edge, State } from '@/lib/context';
 import { NextResponse } from 'next/server';
 
 export async function GET() {
@@ -16,7 +17,7 @@ export async function POST(req: Request) {
     // Create related states
     if (stateData && stateData.length) {
         await db.insert(states).values(
-            stateData.map((s: any) => ({
+            stateData.map((s: State) => ({
                 agentId: agent.id,
                 prompt: s.prompt,
                 name: s.name,
@@ -26,7 +27,7 @@ export async function POST(req: Request) {
     }
     if (edgesData && edgesData.length) {
         await db.insert(edges).values(
-            edgesData.map((edge) => ({
+            edgesData.map((edge: Edge) => ({
                 agentId: agent.id,
                 source: edge.source,
                 target: edge.target,
